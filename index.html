@@ -1,0 +1,955 @@
+<html>
+<head>
+    <link href="./css/vuetify_fonts.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="./css/vuetify.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="./img/Chicken.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <style>
+    @font-face {
+        font-family: "Title Font";
+        src: url('./fonts/James Stroker.ttf');
+    }
+    .v-toolbar__title {
+        font-family: "Title Font";
+        font-size: 32px;
+    }
+
+    .number-input .v-text-field__details {
+        display: none;
+    }
+
+    table {
+        table-layout: fixed;
+    }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <v-app-bar fixed color="teal lighten-3">
+                <v-toolbar-title style="width: 50%">
+                    <v-row align="center">
+                        <img src="./img/Garden_Paws_Logo.png" style="width: 110px; margin-left: 12px; margin-right: 15px;"/>
+                        <div>Recipes Calculator</div>
+                    </v-row>
+                </v-toolbar-title>
+            </v-app-bar>
+
+            <v-content style="margin-top: 55px; margin-bottom: 30px; background: #E0F2F1">
+                <v-container fluid>
+                    <v-row>
+                        <v-col class="col-sm-12">
+                            <v-expansion-panels flat>
+                                <v-expansion-panel>
+                                    <v-expansion-panel-header>Help</v-expansion-panel-header>
+                                    <v-expansion-panel-content>
+
+                                        <v-tabs v-model="helpTabIndex" color="teal lighten-3" show-arrows>
+                                            <v-tab key="introduction">Introduction</v-tab>
+                                            <v-tab key="wanted">Wanted Panel</v-tab>
+                                            <v-tab key="possessed">Possessed Panel</v-tab>
+                                            <v-tab key="itemsToGet">Items to get Panel</v-tab>
+                                            <v-tab key="computationLevels">Computation Levels</v-tab>
+                                            <v-tab key="producerTypes">Producer Types</v-tab>
+                                            <v-tab key="limitations">Limitations</v-tab>
+                                        </v-tabs>
+
+                                        <v-tabs-items v-model="helpTabIndex">
+                                            <v-tab-item key="introduction">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        This non-official tool was designed for the game Garden Paws. Its aim is to help the user to calculate: <br>
+                                                        <ul>
+                                                            <li>which ingredients he needs to create several recipes in the same time,</li>
+                                                            <li>their number,</li>
+                                                            <li>their costs if they are home-produced.</li>
+                                                        </ul>
+                                                        This "calculator" is useful only for the <a href="https://gardenpaws.fandom.com/wiki/Cooking_Station">Cooking Station</a> crafting recipes.
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="wanted">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        You can add here the recipes you want to create. You also have the choice to select the item you want to product at home. You can either select the product with your mouse, or use the autocompletion feature of this field.<br>
+                                                        For example: you want to product a Fruit Bowl, or just some Apples. <br>
+                                                        You can then choose the quantity of each item you want to produce. <br>
+                                                        You can see the value of the items (unit sell price of your product x its entered quantity) <br>
+                                                        You have finally a bin icon to delete a specific entered item or the button "Clear All" to delete all the entered products in the section "Wanted".
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="possessed">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        On the same principles as the Wanted Pannel, you can add some items. This are the items you already have in stock. It allows you to reduce your production costs. You can either enter an item (like Apple, Honey, etc) or an item's producer (Cow, Beehive, Cherry Tree, etc). <br>
+                                                        You can then enter the possessed quantity of each item entered and the maximum of this item you want to possess. This feature allows you to limit the number of producer you can grow/have at home in the same time. <br>
+                                                        For examples:
+                                                        <ul>
+                                                            <li>You can have only 6 Chicken in the same time, you should put this information into the "Max to possess" column. Thus, the Recipes Calculator will take it into account, and tell you that you need 62 days to produce 100 Chicken Eggs, instead of 341 game days if you have only 1 Chicken to produce all the 100 Chicken Eggs.</li>
+                                                            <li>Same idea with the Trees: if you want to prossess only 4 Cherry Trees because they're expansive, you'll need 19 game days and 10 000 coins to produce 20 Cherry instead of 14 game days and 17 500 coins.</li>
+                                                            <li>You can only plant 50 Carrot Seeds in the same time, because you lack of Planters or you don't have enough energie to plan more. You enter 0 Carrots Seed possessed and 50 max to possess. You'll need 100 Carrot Seeds and 4 day to have 150 Carrots, instead or 100 Carrot Seeds and 2 days if you can plant all the 100 seeds in one day.</li>
+                                                        </ul>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="itemsToGet">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        This section has 3 possible vues, thanks to the "Computation Level" field: <br>
+                                                        <ul>
+                                                            <li>All</li>
+                                                            <li>Non renewable producers</li>
+                                                            <li>Only products</li>
+                                                        </ul>
+                                                        At the bottom of the Item to Get Pannel, you'll see:
+                                                        <ul>
+                                                            <li>Total Costs: the total cost of your wanted items if you produce them at home (wanted items price - possessed items),</li>
+                                                            <li>Total Created Value: the total sell price of all your wanted products,</li>
+                                                            <li>Total gain: your benefit (gains - investment),</li>
+                                                            <li>Total production time: the maximum time you'll need to produce all your Items to Get, if you plant them in the same time. It only takes the bigger "Time to obtain" value.</li>
+                                                        </ul>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="computationLevels">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        With the "All" computation level, you'll see:
+                                                        <ul>
+                                                            <li>The item you should buy to product all the items and recipes entered into Wanted Pannel,</li>
+                                                            <li>The quantity of each you should buy to product all the items and recipes entered into Wanted Pannel,</li>
+                                                            <li>Their cost (you'll see only producers here, because you're suppose to produce all your products at home),</li>
+                                                            <li>The game days you'll need to produce each of them.</li>
+                                                        </ul>
+                                                        The "Non renewable producers" computation level concerns only basic Items (like Cherry, Carrot, etc) and the Plant Seeds (like Eggplant Seed, Dandelion Seed, etc). The information you'll see are:
+                                                        <ul>
+                                                            <li>The item you should buy,</li>
+                                                            <li>The quantity of each you should buy</li>
+                                                            <li>Their cost (only if you can buy this item in the world, like the Lemons you can buy with Abby. Some of the items are not buyable in the world)</li>
+                                                            <li>The game days you'll need to produce each of them. Note that if it is a product you can't buy in the world (Cost : N/A), the produce time will be 0 days. It's a limitation of the tool, and I advise you to use the "All" computation level to obtain this information.</li>
+                                                        </ul>
+
+                                                        With the "Only products" computation level, you'll see only the items/products, and none of their producers (for example: you'll see Cherry or Chicken Egg, but to Cherry Tree or Chicken to get). This could be usefull if you want to buy your item directly in the world, without produce it at home. The showed fields are then:
+                                                        <ul>
+                                                            <li>The item you should buy</li>
+                                                            <li>The quantity of each you should buy</li>
+                                                            <li>Their cost (only if you can buy this item in the world, like the Lemons you can buy with Abby. Some of the items are not buyable in the world)</li>
+                                                            <li>The time to obtain will always be 0 days, because you can buy it instantly in the world.</li>
+                                                        </ul>
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="producerTypes">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        Renewable Producers produces items ad infinitum once you grew them (like Cows or Cherry Tree) and they have a regrowth time between two productions of items (1 day for the Cow and 6 days for the Cherry Tree)<br>
+                                                        Non renewable producers are the Plant Seeds. Once you planted them, it produces items only one time. You must then buy a new seed to get other items (ex: Dandelion Seed, Strawberry Seed, Carrot Seed, ...) <br>
+                                                        Item/Products are the recipes (ex: Citrus Pie, Popcorn) or the final product you get with a producer (ex: Chicken Egg, Cherry, Eggplan, ...).
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+
+                                            <v-tab-item key="limitations">
+                                                <v-card flat>
+                                                    <v-card-text>
+                                                        You should always remember that the data used to build this Recipes Calculator are hand made gathered and might sometimes contain error. If you see one and want to correct it, don't hesitate to contact me on <a href="https://discordapp.com/">Discord</a> by PM (Dary-Liv#6883).
+                                                        Notably, the number of items harvested with the non renewable seeds and the animal producers are mean values or estimated values.
+                                                    </v-card-text>
+                                                </v-card>
+                                            </v-tab-item>
+                                        </v-tabs-items>
+
+
+
+                                    </v-expansion-panel-content>
+                                </v-expansion-panel>
+                            </v-expansion-panels>
+                        </v-col>
+
+                        <v-col class="col-sm-6 col-lg-4">
+                            <v-card>
+                                <v-card-text>
+                                    <div class="title">Wanted</div>
+                                    <v-row>
+                                        <v-col>
+                                            <v-autocomplete dense v-model="selectedItemIdToWant" :items="unwantedProductsList" color="teal lighten-3" item-color="teal lighten-3"></v-autocomplete>
+                                        </v-col>
+                                        <v-col class="text-center">
+                                            <v-btn @click="addWantedItem" :disabled="!selectedItemIdToWant">Add</v-btn>
+                                            <v-btn @click="wantedItems = []">Clear All</v-btn>
+                                        </v-col>
+                                    </v-row>
+                                    <v-simple-table v-show="wantedItems.length > 0">
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Item</th>
+                                                    <th class="text-center" style="width: 25%">Total quantity wanted</th>
+                                                    <th class="text-center" style="width: 20%">Total value</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="wantedItem, index in wantedItems">
+                                                    <td class="text-center">{{ITEM[wantedItem.id].name}}</td>
+                                                    <td>
+                                                        <v-text-field class="mt-2 mb-1 number-input" outlined dense type="number" min="1" v-model.number="wantedItem.quantity" color="teal lighten-3"></v-text-field>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {{ITEM[wantedItem.id].value * wantedItem.quantity}}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <v-btn icon @click="deleteWantedItem(index)">
+                                                            <v-icon>mdi-delete</v-icon>
+                                                        </v-btn>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+
+                        <v-col class="col-sm-6 col-lg-4">
+                            <v-card>
+                                <v-card-text>
+                                    <div class="title">Possessed</div>
+                                    <v-row>
+                                        <v-col>
+                                            <v-autocomplete dense v-model="selectedItemIdToPossess" :items="unpossessedItemsList" color="teal lighten-3" item-color="teal lighten-3"></v-autocomplete>
+                                        </v-col>
+                                        <v-col class="text-center">
+                                            <v-btn @click="addPossessedItem" :disabled="!selectedItemIdToPossess">Add</v-btn>
+                                            <v-btn @click="possessedItems = []">Clear All</v-btn>
+                                        </v-col>
+                                    </v-row>
+                                    <v-simple-table v-show="possessedItems.length > 0">
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Item</th>
+                                                    <th class="text-center" style="width: 25%">Quantity</th>
+                                                    <th class="text-center" style="width: 25%">Max to possess</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item, index in possessedItems">
+                                                    <td>{{ITEM[item.id].name}}</td>
+                                                    <td>
+                                                        <v-text-field
+                                                        class="mt-2 mb-1 number-input" outlined dense
+                                                        type="number" min="0"
+                                                        v-model.number="item.quantity"
+                                                        color="teal lighten-3"
+                                                        @input="item.maxToPossess = Math.max(item.quantity, item.maxToPossess)"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>
+                                                        <v-text-field
+                                                        v-if="ITEM[item.id].type === PRODUCTION_TYPE.PERIODIC_PRODUCER"
+                                                        class="mt-2 mb-1 number-input" outlined dense
+                                                        type="number" :min="item.quantity"
+                                                        v-model.number="item.maxToPossess"
+                                                        color="teal lighten-3"
+                                                        ></v-text-field>
+                                                    </td>
+                                                    <td>
+                                                        <v-btn icon @click="deletePossessedItem(index)">
+                                                            <v-icon>mdi-delete</v-icon>
+                                                        </v-btn>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+
+                        <v-col class="col-sm-12 col-lg-4">
+                            <v-card>
+                                <v-card-text>
+                                    <div class="title">Items to Get</div>
+                                    <v-select v-model="computationLevel" :items="computationLevels" color="teal lighten-3" item-color="teal lighten-3" label="Computation Level"></v-select>
+                                    <v-simple-table>
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Item</th>
+                                                    <th class="text-center">Quantity to buy</th>
+                                                    <th class="text-center">Cost</th>
+                                                    <th class="text-center">Time to obtain</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="itemId in neededItemsList"  class="text-center">
+                                                    <td>{{ITEM[itemId].name}}</td>
+                                                    <td>{{neededItems[itemId]}}</td>
+                                                    <td>{{neededItemsCost[itemId] === null ? 'N/A' : neededItemsCost[itemId]}}</td>
+                                                    <td>{{neededItemsProductionTime[itemId]}} days</td>
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+
+                                    <div class="headline font-weight-black mt-10">Total</div>
+                                    <v-col class="col-xs-12 title font-weight-bold pb-0">Total Cost: {{neededItemsTotalCost}} coins</v-col>
+                                    <v-col class="col-xs-12 title font-weight-bold py-0">Total created value: {{wantedItemsTotalValue}} coins</v-col>
+                                    <v-col class="col-xs-12 title font-weight-bold py-0">Total gain: {{wantedItemsTotalValue - neededItemsTotalCost}} coins</v-col>
+                                    <v-col class="col-xs-12 title font-weight-bold  py-0">Total production time: {{neededItemsTotalProductionTime}} days</v-col>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+
+                        <v-col class="col-sm-12">
+                            <v-card>
+                                <v-card-text>
+                                    <div class="title">Recipes Display</div>
+                                    <v-simple-table v-show="wantedItems.length > 0">
+                                        <template v-slot:default>
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">Items</th>
+                                                    <th class="text-center">Necessary ingredients to get items</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="wantedItem, index in wantedItems">
+                                                    <td class="text-center">{{ITEM[wantedItem.id].name}}</td>
+                                                    <td class="text-center">
+                                                        {{Object.keys(ITEM[wantedItem.id].needs)}}
+                                                        <!--{{Object.keys(ITEM[wantedItem.id].needs[0])}} ne marche pas encore-->
+                                                        <!--{{Object.keys(ITEM[wantedItem.id].needs)}}, {{Object.keys(ITEM[wantedItem.id].needs[1])}}, {{Object.keys(ITEM[wantedItem.id].needs[2])}}, {{Object.keys(ITEM[wantedItem.id].needs[3])}}, {{Object.keys(ITEM[wantedItem.id].needs[4])}}, {{Object.keys(ITEM[wantedItem.id].needs[5])}}, {{Object.keys(ITEM[wantedItem.id].needs[6])}}, {{Object.keys(ITEM[wantedItem.id].needs[7])}}-->
+                                                    </td>
+                                                    <!-- <td class="text-center" v-for="ingredient in Object.keys(ITEM[wantedItem.id].needs)">
+                                                        {{ingredient}}
+                                                    </td> -->
+                                                </tr>
+                                            </tbody>
+                                        </template>
+                                    </v-simple-table>
+                                </v-card-text>
+                            </v-card>
+                        </v-col>
+
+                    </v-row>
+                </v-container>
+            </v-content>
+
+            <v-footer fixed color="teal lighten-1" dark>
+                <span>This a non-official tool for the game Garden Paws. All logos and content are the property of Bitten Toast Games.</span>
+                <v-spacer></v-spacer>
+                Made by Dary-Liv & Genroa with <v-icon class="ml-1" color="red">mdi-heart</v-icon>
+            </v-footer>
+        </v-app>
+    </div>
+
+    <script src="./js/vue.js"></script>
+    <script src="./js/vuetify.js"></script>
+    <script>
+
+    const mapEntries = (o, mapFunc) => {
+        return Object.fromEntries(Object.entries(o).map(mapFunc));
+    }
+
+    const PRODUCTION_TYPE = {
+        PRODUCT: "PRODUCT",
+        PERIODIC_PRODUCER: "PERIODIC",
+        CONSUMMABLE_PRODUCER: "CONSUMMABLE"
+    }
+
+    const buildProduct = (name, needs, cost, value) => ({
+        type: PRODUCTION_TYPE.PRODUCT,
+        name,
+        cost: cost ?? null,
+        value: value ?? null,
+        needs: needs ?? null
+    })
+
+    const buildRenewableProducter = (name, cost, timeToStartproducing, timeBetweenTwoProductions, products) => ({
+        name,
+        type: PRODUCTION_TYPE.PERIODIC_PRODUCER,
+        cost,
+        value: 0,
+        timeToStartproducing,
+        timeBetweenTwoProductions,
+        products
+    })
+    const buildStandardTree = (name, product) => buildRenewableProducter(name, 2500, 8, 6, {[product]: 3})
+
+    const buildConsummableProducer = (name, cost, value, timeToProduce, productQuantity) => ({
+        name,
+        type: PRODUCTION_TYPE.CONSUMMABLE_PRODUCER,
+        cost,
+        value,
+        timeToProduce,
+        productQuantity
+    })
+
+    new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+
+        data: () => ({
+            PRODUCTION_TYPE,
+            ITEM: {
+                // Renewable producers
+                APPLE_TREE: buildStandardTree("Apple Tree", "APPLE"),
+                BEEHIVE: buildRenewableProducter("Beehive", 0, 0, 1, {"HONEY": 1.5}),  // valeur indicative : nombre de honey par récolte
+                BLUEBERRY_BUSH: buildRenewableProducter("Blueberry Bush", 1500, 8, 4, {"BLUEBERRY": 3}),
+                DUCK: buildRenewableProducter("Duck", 450, 7, 1, {"DUCK_EGG": 0.33}),
+                CHERRY_TREE: buildStandardTree("Cherry Tree", "CHERRY"),
+                CHICKEN: buildRenewableProducter("Chicken", 200, 7, 1, {"CHICKEN_EGG": 0.3, "GOLD_CHICKEN_EGG": 0.1}),
+                COW: buildRenewableProducter("Cow", 1500, 10, 1, {"COW_MILK": 1}), // modifier le temps initial de pousse avec la vraie valeur
+                LEMON_TREE: buildStandardTree("Lemon Tree", "LEMON"),
+                ORANGE_TREE: buildStandardTree("Orange Tree", "ORANGE"),
+
+                // Consummable producers: nom, prix d'achat, prix de vente, temps de pousse, nb produits
+                BELL_PEPPER_SEED: buildConsummableProducer("Bell Pepper Seed", 70, 30, 3, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                BLUE_HYDRANGEA_SEED: buildConsummableProducer("Blue Hydrangea Seed", 75, null, 3, 1.5),
+                BLUE_MUSHROOM_SEED: buildConsummableProducer("Blue Mushroom Seed", 30, 15, 2, 3), // valeurs indicatives : nombre d'items produits par seed
+                BLUE_STAR_SEED: buildConsummableProducer("Blue Star Seed", 80, null, 3, 1.5),
+                CARROT_SEED: buildConsummableProducer("Carrot Seed", 60, 30, 2, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                CORN_SEED: buildConsummableProducer("Corn Seed", 100, 50, 3, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                DANDELION_SEED: buildConsummableProducer("Dandelion Seed", 35, 5, 2, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                EGGPLANT_SEED: buildConsummableProducer("Eggplant Seed", 55, 30, 2, 1.5),  // valeur indicatives : prix de vente et nombre d'items produits par seed
+                ICEBERG_LETTUCE_SEED: buildConsummableProducer("Iceberg Lettuce Seed", 50, 25, 2, 2),  // valeur indicatives : prix de vente et nombre d'items produits par seed
+                LAVENDER_SEED: buildConsummableProducer("Lavender Seed", 195, null, 3, 2),
+                ORANGE_DAISY_SEED: buildConsummableProducer("Orange Daisy Seed", 30, null, 2, 2),
+                PINK_LEAF_SEED:buildConsummableProducer("Pink Leaf Seed", 50, 10, 2, 2),
+                PLANT_FIBER_SEED: buildConsummableProducer("Plant Fiber Seed", null, 5, 2, 2), // Valeurs indicatives : temps de pousse et nb par pousse
+                PUMPKIN_SEED: buildConsummableProducer("Pumpkin Seed", 120, 30, 4, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                PURPLE_BELL_SEED: buildConsummableProducer("Purple Bell Seed", 110, null, 3, 1.5),
+                PURPLE_COSMOS_SEED: buildConsummableProducer("Purple Cosmos Seed", 70, 40, 2, 2),
+                PURPLE_DAISY_SEED: buildConsummableProducer("Purple Daisy Seed", 40, 5, 2, 2),
+                PURPLE_LEAF_SEED: buildConsummableProducer("Purple Leaf Seed", 50, null, 2, 2), // valeurs indicatives : nb par seed
+                RED_COSMOS_SEED: buildConsummableProducer("Red Cosmos Seed", 70, null, 3, 2),
+                RED_DAISY_SEED: buildConsummableProducer("Red Daisy Seed", 30, 5, 2, 2),
+                RED_HYDRANGEA_SEED: buildConsummableProducer("Red Hydrangea Seed", 75, null, 3, 2),
+                RED_MUSHROOM_SEED: buildConsummableProducer("Red Mushroom Seed", 40, 15, 2, 3), // valeurs indicatives : nombre d'items produits par seed et prix de vente
+                RED_TULIP_SEED: buildConsummableProducer("Red Tulip Seed", 125, null, 4, 2), // valeurs indicatives : nb d'items obtenus
+                STRAWBERRY_SEED: buildConsummableProducer("Strawberry Seed", 115, 30, 4, 1.5), // valeurs indicatives : nombre d'items produits par seed
+                SUNFLOWER_SEED: buildConsummableProducer("Sunflower Seed", 125, null, 3, 2),
+                TALL_WHITE_FLOWER_SEED: buildConsummableProducer("Tall White Flower Seed", null, 70, 3, 1.5),
+                TOMATO_SEED: buildConsummableProducer("Tomato Seed", 60, 20, 3, 1.5), // valeurs indicatives : prix de vente et nombre d'items produits par seed
+                WHEAT_SEED: buildConsummableProducer("Wheat Seed", 5, 5, 1, 2.5), // valeurs indicatives : nombre d'items produits par seed
+                YAM_SEED: buildConsummableProducer("Yam Seed", 50, 25, 3, 1.5), // valeur indicative : nombre d'items produits par seed
+                YELLOW_FLOWER_BUSH_SEED: buildConsummableProducer("Yellow Flower Bush Seed", 130, null, 4, 1.5),
+                WHITE_FLOWER_BUSH_SEED: buildConsummableProducer("White Flower Bush Seed", 180, null, 5, 1.5),
+
+                // Items
+                APPLE: buildProduct("Apple", {"APPLE_TREE": 1}, null, 80), // valeur indicative : prix de vente
+                BELL_PEPPER: buildProduct("Bell Pepper", {"BELL_PEPPER_SEED": 1}, null, 45),
+                BLUEBERRY: buildProduct("Blueberry", {"BLUEBERRY_BUSH": 1}, null, 20), // valeur indicative : prix de vente
+                BLUE_HYDRANGEA: buildProduct("Blue Hydrangea", {"BLUE_HYDRANGEA_SEED": 1}, 140, 70),
+                BLUE_MUSHROOM: buildProduct("Blue Mushroom", {"BLUE_MUSHROOM_SEED": 1}, 30, 15),
+                BLUE_STAR: buildProduct("Blue Star", {"BLUE_STAR_SEED": 1}, 120, 60),
+                CARROT: buildProduct("Carrot", {"CARROT_SEED": 1}, 80, 40),
+                CHERRY: buildProduct("Cherry", {"CHERRY_TREE": 1}, null, 25), // valeur indicative : prix de vente
+                CHICKEN_EGG: buildProduct("Chicken Egg", {"CHICKEN": 1}, null, 40),
+                CORN: buildProduct("Corn", {"CORN_SEED": 1}, 120, 60),
+                COW_MILK: buildProduct("Cow Milk", {"COW": 1}, null, 80),
+                DANDELION: buildProduct("Dandelion", {"DANDELION_SEED": 1}, 50, 25),
+                DUCK_EGG: buildProduct("Duck Egg", {"DUCK": 1}, null, 50),
+                EGGPLANT: buildProduct("Eggplant", {"EGGPLANT_SEED": 1}, null, 35),
+                GOLD_CHICKEN_EGG: buildProduct("Gold Chicken Egg", {"CHICKEN": 1}, null, 150),
+                HONEY: buildProduct("Honey", {"BEEHIVE": 1}, null, 25),
+                ICEBERG_LETTUCE: buildProduct("Iceberg Lettuce", {"ICEBERG_LETTUCE_SEED": 1}, 80, 40),
+                LAVENDER: buildProduct("Lavender", {"LAVENDER": 1}, null, 130),
+                LEMON: buildProduct("Lemon", {"LEMON_TREE": 1}, 25, 15),
+                ORANGE: buildProduct("Orange", {"ORANGE_TREE": 1}, null, 50), // valeur indicative : prix de vente
+                ORANGE_DAISY: buildProduct("Orange Daisy", {"ORANGE_DAISY_SEED": 1}, null, 20),
+                PINK_LEAF: buildProduct("Pink Leaf", {"PINK_LEAF_SEED": 1}, 70, 35),
+                PLANT_FIBER: buildProduct("Plant Fiber", {"PLANT_FIBER_SEED": 1}, null, 5),
+                PUMPKIN: buildProduct("Pumpkin", {"PUMPKIN_SEED": 1}, 150, 75),
+                PURPLE_BELL: buildProduct("Purple Bell", {"PURPLE_BELL_SEED": 1}, 150, 75),
+                PURPLE_COSMOS: buildProduct("Purple Cosmos", {"PURPLE_COSMOS_SEED": 1}, 100, 50),
+                PURPLE_DAISY: buildProduct("Purple Daisy", {"PURPLE_DAISY_SEED": 1}, 60, 30),
+                PURPLE_LEAF: buildProduct("Purple Leaf", {"PURPLE_LEAF_SEED": 1}, null, 35),
+                RED_COSMOS: buildProduct("Red Cosmos", {"RED_COSMOS_SEED": 1}, null, 50),
+                RED_DAISY: buildProduct("Red Daisy", {"RED_DAISY_SEED": 1}, 40, 20),
+                RED_HYDRANGEA: buildProduct("Red Hydrangea", {"RED_HYDRANGEA_SEED": 1}, null, 70),
+                RED_MUSHROOM: buildProduct("Red Mushroom", {"RED_MUSHROOM_SEED": 1}, 30, 15),
+                RED_TULIP: buildProduct("Red Tulip", {"RED_TULIP_SEED": 1}, null, 90),
+                STRAWBERRY: buildProduct("Strawberry", {"STRAWBERRY_SEED": 1}, null, 20),
+                SUNFLOWER: buildProduct("Sunflower", {"SUNFLOWER_SEED": 1}, null, 80),
+                TALL_WHITE_FLOWER: buildProduct("Tall White Flower", {"TALL_WHITE_FLOWER_SEED": 1}, 100, 50),
+                TOMATO: buildProduct("Tomato", {"TOMATO_SEED": 1}, null, 30),
+                WHEAT: buildProduct("Wheat", {"WHEAT_SEED": 1}, 10, 5),
+                YAM: buildProduct("Yam", {"YAM_SEED": 1}, 50, 25),
+                YELLOW_FLOWER_BUSH: buildProduct("Yellow Flower Bush", {"YELLOW_FLOWER_BUSH_SEED": 1}, 165, 95),
+                WHITE_FLOWER_BUSH: buildProduct("White Flower Bush", {"WHITE_FLOWER_BUSH_SEED": 1}, 240, 1205),
+
+                APPLE_FILLING: buildProduct("Apple Filling", {
+                    "APPLE": 5
+                }, null, 135),
+
+                BLUEBERRY_DELIGHT: buildProduct("Blueberry Delight", {
+                    "BLUEBERRY": 30,
+                    "COW_MILK": 1,
+                    "BLUEBERRY_FILLING": 1
+                }, null, 515),
+
+                BLUEBERRY_FILLING: buildProduct("Blueberry Filling", {
+                    "BLUEBERRY": 10
+                }, null, 115),
+
+                BLUEBERRY_ICE: buildProduct("Blueberry Ice", {
+                    "BLUEBERRY": 10,
+                    "COW_MILK": 1
+                }, null, 200),
+
+                BLUE_HYDRANGEA_BOUQUET: buildProduct({
+                  "BLUE_HYDRANGEA": 5,
+                  "PAPER": 1
+                }, null, 410),
+
+                BLUE_STAR_BOUQUET: buildProduct("Blue Star Bouquet", {
+                    "BLUE_STAR": 5,
+                    "PAPER": 1
+                }, null, 365),
+
+                BREAD: buildProduct("Bread", {
+                    "DOUGH": 1,
+                }, 785, 170), // Vérifier le prix d'achat du pain avec James
+
+                CHERRY_COOKIE: buildProduct("Cherry Cookie", {
+                    "DOUGH": 1,
+                    "CHERRY_FILLING": 1,
+                    "CHERRY": 1
+                }, null, 325),
+
+                CHERRY_FILLING: buildProduct("Cherry Filling", {
+                    "CHERRY": 5
+                }, null, 215),
+
+                CITRUS_PIE: buildProduct("Citrus Pie",{
+                    "LEMON": 10,
+                    "ORANGE": 10,
+                    "DOUGH": 1
+                }, null, 885),
+
+                DANDELION_BOUQUET: buildProduct("Dandelion Bouquet", {
+                    "DANDELION": 5,
+                    "PAPER": 1
+                }, null, 200),
+
+                DANDELION_TEA: buildProduct("Dandelion Tea", {
+                    "DANDELION": 5,
+                    "HONEY": 1
+                }, null, 165),
+
+                DOUGH: buildProduct("Dough",{
+                    "CHICKEN_EGG": 1,
+                    "COW_MILK": 1,
+                    "WHEAT": 1
+                }, 775, 155),
+
+                EGG_ON_BREAD: buildProduct("Egg on Bread", {
+                    "BREAD": 1,
+                    "CHICKEN_EGG": 1
+                }, null, 225),
+
+                FRIED_DUCK_EGG: buildProduct("Fried Duck Egg", {
+                    "DUCK_EGG": 1
+                }, null, 60),
+
+                FRIED_EGG: buildProduct("Fried Egg", {
+                    "CHICKEN_EGG": 1
+                }, null, 50),
+
+                FRIED_GOLDEN_EGG: buildProduct("Fried Golden Egg", {
+                    "GOLD_CHICKEN_EGG": 1
+                }, null, 165),
+
+                FRUIT_BOWL: buildProduct("Fruit Bowl", {
+                    "APPLE": 10,
+                    "CHERRY": 10,
+                    "ORANGE": 10
+                }, null, 1200),
+
+                FRUIT_TART: buildProduct("Fruit Tart", {
+                    "CHERRY": 5,
+                    "STRAWBERRY": 2,
+                    "DOUGH": 1
+                }, null, 950),
+
+                HONEY_MILK_TEA: buildProduct("Honey Milk Tea", {
+                    "HONEY": 5,
+                    "COW_MILK": 5
+                }, null, 565),
+
+                LAVENDER_BOUQUET: buildProduct("Lavender Bouquet", {
+                    "LAVENDER": 5,
+                    "PAPER": 1
+                }, null, 710),
+
+                MUSHROOM_SKEWER: buildProduct("Mushroom Skewer", {
+                    "RED_MUSHROOM": 5,
+                    "BLUE_MUSHROOM": 5
+                }, null, 190),
+
+                ORANGE_DAISY_BOUQUET: buildProduct("Orange Daisy Bouquet", {
+                    "ORANGE_DAISY": 5,
+                    "PAPER": 1
+                }, null, 175),
+
+                ORANGE_ICE: buildProduct("Orange Ice", {
+                    "ORANGE": 5,
+                    "COW_MILK": 1
+                }, null, 350),
+
+                PAPER: buildProduct("Paper", {
+                    "PLANT_FIBER": 10
+                }, null, 51),
+
+                PINK_LEAF_BOUQUET: buildProduct("Pink Leaf Bouquet", {
+                    "PINK_LEAF": 5,
+                    "PAPER": 1
+                }, null, 245),
+
+                POPCORN: buildProduct("Popcorn", {
+                    "CORN": 5
+                }, null, 320),
+
+                PUMPKIN_FILLING: buildProduct("Pumpkin Filling", {
+                    "PUMPKIN": 5
+                }, null, 385),
+
+                PURPLE_BELL_BOUQUET: buildProduct("Purple Bell Bouquet", {
+                    "PURPLE_BELL": 10,
+                    "PAPER": 1
+                }, null, 435),
+
+                PURPLE_COSMOS_BOUQUET: buildProduct("Purple Cosmos Bouquet", {
+                    "PURPLE_COSMOS": 5,
+                    "PAPER": 1
+                }, null, 320),
+
+                PURPLE_DAISY_BOUQUET: buildProduct("Purple Daisy Bouquet", {
+                    "PURPLE_DAISY": 5,
+                    "PAPER": 1
+                }, null, 225),
+
+                PURPLE_LEAF_BOUQUET: buildProduct("Purple Leaf Bouquet", {
+                    "PURPLE_LEAF": 5,
+                    "PAPER": 1
+                }, null, 245),
+
+                RED_COSMOS_BOUQUET: buildProduct("Red Cosmos Bouquet", {
+                    "RED_COSMOS": 5,
+                    "PAPER": 1
+                }, null, 320),
+
+                RED_DAISY_BOUQUET: buildProduct("Red Daisy Bouquet", {
+                    "RED_DAISY": 5,
+                    "PAPER": 1
+                }, null, 175),
+
+                RED_HYDRANGEA_BOUQUET: buildProduct("Red Hydrangea Bouquet", {
+                    "RED_HYDRANGEA": 5,
+                    "PAPER": 1
+                }),
+
+                RED_TULIP_BOUQUET: buildProduct("Red Tulip Bouquet", {
+                    "RED_TULIP": 5,
+                    "PAPER": 1
+                }),
+
+                STRAWBERRY_ICECREAM: buildProduct("Strawberry Icecream", {
+                    "STRAWBERRY": 5,
+                    "COW_MILK": 1
+                }, null, 550),
+
+                STRAWBERRY_FILLING: buildProduct("Strawberry Filling", {
+                    "STRAWBERRY": 5
+                }, null, 460),
+
+                STRAWBERRY_TEA: buildProduct("Strawberry Tea", {
+                    "STRAWBERRY": 5,
+                    "HONEY": 1
+                }, null, 515),
+
+                SUNFLOWER_BOUQUET: buildProduct("Sunflower Bouquet", {
+                    "SUNFLOWER": 5,
+                    "PAPER": 1
+                }, null, 435),
+
+                SUNRISE_POP: buildProduct("Sunrise Pop", {
+                    "ORANGE": 5,
+                    "LEMON": 5,
+                    "STRAWBERRY": 5
+                }, null, 820),
+
+                TACO: buildProduct("Taco", {
+                    "WHEAT": 5,
+                    "BELL_PEPPER": 5,
+                    "ICEBERG_LETTUCE": 5
+                }, null, 340),
+
+                TALL_WHITE_FLOWER_BOUQUET: buildProduct("Tall White Flower Bouquet", {
+                    "TALL_WHITE_FLOWER": 5,
+                    "PAPER": 1
+                }, null, 325),
+
+                TOMATO_SOUP: buildProduct("Tomato Soup", {
+                    "TOMATO": 10
+                }, null, 315),
+
+                VEGETABLE_SKEWER: buildProduct("Vegetable Skewer", {
+                    "CARROT": 2,
+                    "BELL_PEPPER": 2,
+                    "EGGPLANT": 2
+                }, null, 255),
+
+                YAM_FRIES: buildProduct("Yam Fries", {
+                    "YAM": 10
+                }, null, 315),
+
+                YELLOW_FLOWER_BUSH_BOUQUET: buildProduct("Yellow Flower Bush Bouquet", {
+                    "YELLOW_FLOWER_BUSH": 5,
+                    "PAPER": 1
+                }, null, 535),
+
+                WHITE_FLOWER_BUSH_BOUQUET: buildProduct("White Flower Bush Bouquet", {
+                    "WHITE_FLOWER_BUSH": 5,
+                    "PAPER": 1
+                }, null, 660)
+
+            },
+
+            helpTabIndex: "introduction",
+            computationLevel: "all",
+            computationLevels: [{text: "All", value: "all"}, {text: "No renewable producer", value: "no_renewable"}, {text: "Only products", value:"products"}],
+
+            selectedItemIdToPossess: null,
+            possessedItems: [],
+
+            selectedItemIdToWant: null,
+            wantedItems: []
+        }),
+
+        created() {
+            let savedState = localStorage.getItem("gprc-save");
+            if(savedState !== null) {
+                savedState = JSON.parse(savedState);
+                this.computationLevel = savedState.computationLevel;
+                this.selectedItemIdToPossess = savedState.selectedItemIdToPossess;
+                this.possessedItems = savedState.possessedItems;
+                this.selectedItemIdToWant = savedState.selectedItemIdToWant;
+                this.wantedItems = savedState.wantedItems;
+            }
+
+            setInterval(this.saveState, 2000);
+        },
+
+        computed: {
+            itemsList() {
+                return Object.entries(this.ITEM).map(([id, item]) => ({text: item.name, value: id, type: item.type}))
+            },
+
+            unwantedProductsList() {
+                let wantedItemsId = this.wantedItems.map(i => i.id)
+                return this.itemsList.filter(el => !wantedItemsId.includes(el.value) && el.type === PRODUCTION_TYPE.PRODUCT)
+            },
+
+            unpossessedItemsList() {
+                let possessedItemsId = this.possessedItems.map(i => i.id)
+                return this.itemsList.filter(el => !possessedItemsId.includes(el.value))
+            },
+
+            neededItemsBeforeProducersPass() {
+                let neededItems = {};
+
+                let consummablePossessedMap = Object.fromEntries(JSON.parse(JSON.stringify(this.possessedItems)).map(el => ([el.id, el])));
+
+                for(let wantedItem of this.wantedItems) {
+                    let item = this.ITEM[wantedItem.id];
+
+                    if(item.type !== PRODUCTION_TYPE.PRODUCT) continue;
+                    this.computeProductNeeds(wantedItem.id, wantedItem.quantity,consummablePossessedMap, neededItems, 0);
+                }
+                return neededItems;
+            },
+
+            neededItemsWithTheoricalProducers() {
+                let neededItemsAfterProductPass = {...this.neededItemsBeforeProducersPass};
+
+                if(this.computationLevel !== "all") return this.neededItemsBeforeProducersPass;
+
+                for(let [itemId, quantity] of Object.entries(this.neededItemsBeforeProducersPass)) {
+                    let item = this.ITEM[itemId];
+                    if(!item.needs) continue;
+                    for(let needId of Object.keys(item.needs)) {
+                        let needItem = this.ITEM[needId];
+                        if(needItem.type === PRODUCTION_TYPE.PERIODIC_PRODUCER) {
+                            console.log("Renewable producer needed:", needId, "for", quantity, itemId)
+                            let producer = needItem;
+                            let theoricalMaxQuantity = Math.ceil(quantity / producer.products[itemId]);
+                            let possessedItem = this.possessedItems.find(i => i.id === needId);
+                            let authorizedMaxQuantity = possessedItem ? theoricalMaxQuantity - possessedItem.quantity : theoricalMaxQuantity;
+
+                            delete neededItemsAfterProductPass[itemId]
+
+                            neededItemsAfterProductPass[needId] = Math.max((neededItemsAfterProductPass[needId] ?? 0 ), authorizedMaxQuantity);
+                            break;
+                        }
+                    }
+                }
+
+                return neededItemsAfterProductPass;
+            },
+
+            neededItems() {
+                let neededItemsAfterProductPass = {...this.neededItemsBeforeProducersPass};
+                if(this.computationLevel !== "all") return this.neededItemsBeforeProducersPass;
+
+                for(let [itemId, quantity] of Object.entries(this.neededItemsBeforeProducersPass)) {
+                    let item = this.ITEM[itemId];
+                    if(!item.needs) continue;
+                    for(let needId of Object.keys(item.needs)) {
+                        let needItem = this.ITEM[needId];
+                        if(needItem.type === PRODUCTION_TYPE.PERIODIC_PRODUCER) {
+                            console.log("Renewable producer needed:", needId, "for", quantity, itemId)
+                            let producer = needItem;
+                            let theoricalMaxQuantity = Math.ceil(quantity / producer.products[itemId]);
+                            let possessedItem = this.possessedItems.find(i => i.id === needId);
+                            let authorizedMaxQuantity = possessedItem ? Math.min(theoricalMaxQuantity, possessedItem.maxToPossess) - possessedItem.quantity : theoricalMaxQuantity;
+                            console.log("This is a producer:", needId, ", produces", producer.products[itemId], "each cycle, theorical max to possess to meet requirement in one mature cycle is", theoricalMaxQuantity, "max authorized to possess is", possessedItem?.maxToPossess)
+
+                            delete neededItemsAfterProductPass[itemId]
+
+                            neededItemsAfterProductPass[needId] = Math.max((neededItemsAfterProductPass[needId] ?? 0 ), authorizedMaxQuantity);
+                            break;
+                        }
+                    }
+                }
+
+                return neededItemsAfterProductPass;
+            },
+
+            neededItemsList() {
+                return Object.keys(this.neededItems);
+            },
+            neededItemsCost() {
+                return mapEntries(this.neededItems, ([itemId, quantity]) => ([itemId, this.ITEM[itemId].cost === null? this.ITEM[itemId].cost : quantity * this.ITEM[itemId].cost]))
+            },
+
+            neededItemsTotalCost() {
+                let costs = Object.values(this.neededItemsCost).map(c => c || 0);
+                return costs.length > 0 ? costs.reduce((a, b) => a+b) : 0
+            },
+
+            neededItemsProductionTime() {
+                return mapEntries(this.neededItems, ([itemId, quantity]) => {
+                    let item = this.ITEM[itemId];
+                    if(item.type === PRODUCTION_TYPE.PRODUCT) return [itemId, 0]
+                    if(item.type === PRODUCTION_TYPE.CONSUMMABLE_PRODUCER) return [itemId, item.timeToProduce]
+
+                    // Renewable producer
+                    let theoricalNumber = this.neededItemsWithTheoricalProducers[itemId];
+                    if(quantity === 0) return [itemId, (theoricalNumber+1)*item.timeBetweenTwoProductions]
+
+                    let realTime = item.timeToStartproducing + (item.timeBetweenTwoProductions * (theoricalNumber / quantity));
+                    return [itemId, Math.ceil(realTime)]
+                })
+            },
+
+            neededItemsTotalProductionTime() {
+                return Math.max(0, ...Object.values(this.neededItemsProductionTime));
+            },
+
+            wantedItemsTotalValue() {
+                let values = this.wantedItems.map(i => this.ITEM[i.id].value * i.quantity);
+                return values.length > 0 ? values.reduce((a, b) => a+b) : 0;
+            }
+        },
+
+        methods: {
+            saveState() {
+                localStorage.setItem("gprc-save", JSON.stringify({
+                    computationLevel: this.computationLevel,
+                    selectedItemIdToPossess: this.selectedItemIdToPossess,
+                    possessedItems: this.possessedItems,
+                    selectedItemIdToWant: this.selectedItemIdToWant,
+                    wantedItems: this.wantedItems
+                }));
+            },
+
+            addWantedItem() {
+                this.wantedItems.push({
+                    id: this.selectedItemIdToWant,
+                    quantity: 1
+                });
+                this.selectedItemIdToWant = null;
+            },
+
+            addPossessedItem() {
+                this.possessedItems.push({
+                    id: this.selectedItemIdToPossess,
+                    quantity: 1,
+                    maxToPossess: 1
+                });
+                this.selectedItemIdToPossess = null;
+            },
+
+            deleteWantedItem(index) {
+                this.wantedItems.splice(index, 1);
+            },
+
+            deletePossessedItem(index) {
+                this.possessedItems.splice(index, 1);
+            },
+
+            computeProductNeeds(itemId, neededQuantity, possessedItems, neededItems, logLevel) {
+                let item = this.ITEM[itemId];
+                let tabs = new Array(logLevel).fill('\t').join('')
+
+                // Compute needed quantity after removing what we already have
+                let neededQuantityMinusAlreadyPossessed = neededQuantity - (possessedItems[itemId]?.quantity ?? 0)
+
+                if(possessedItems[itemId]) possessedItems[itemId].quantity = Math.max(0, possessedItems[itemId].quantity - neededQuantity)
+                if(neededQuantityMinusAlreadyPossessed <= 0) return;
+                console.log(tabs+"For", neededQuantityMinusAlreadyPossessed, item.name, "we need:")
+
+                for(let [needId, quantity] of Object.entries(item.needs)) {
+                    console.log(tabs+"->", needId, quantity * neededQuantity);
+                    let neededItem = this.ITEM[needId];
+                    if(neededItem.type === PRODUCTION_TYPE.PRODUCT) {
+                        this.computeProductNeeds(needId, quantity * neededQuantityMinusAlreadyPossessed, possessedItems, neededItems, logLevel+1);
+                    }
+                    else if(neededItem.type === PRODUCTION_TYPE.CONSUMMABLE_PRODUCER) {
+
+                        if(this.computationLevel === "products") {
+                            neededItems[itemId] = (neededItems[itemId] ?? 0) + neededQuantityMinusAlreadyPossessed;
+                            continue;
+                        }
+
+                        let producerNumber = Math.ceil(quantity * neededQuantityMinusAlreadyPossessed / neededItem.productQuantity);
+                        let neededProducerQuantityMinusAlreadyPossessed = producerNumber - (possessedItems[needId]?.quantity ?? 0)
+                        if(possessedItems[needId]) possessedItems[needId].quantity = Math.max(0, possessedItems[needId].quantity - producerNumber)
+                        if(neededProducerQuantityMinusAlreadyPossessed <= 0) return;
+
+                        neededItems[needId] = (neededItems[needId] ?? 0) + neededProducerQuantityMinusAlreadyPossessed;
+                    }
+                    else {
+                        // If the need is a renewable producer, we will process the problem in the next stage, after computing basic product needs.
+                        neededItems[itemId] = (neededItems[itemId] ?? 0) + neededQuantityMinusAlreadyPossessed
+                    }
+                }
+                return neededItems;
+            }
+        }
+    })
+    </script>
+    </body>
+    </html>
